@@ -9,6 +9,15 @@ export type WalrusArtifact = {
   createdAt: string;
   preview: string;
   storage: "walrus" | "local-demo";
+  diagnostics: {
+    mode: "browser-direct";
+    publisherUrl: string;
+    aggregatorUrl: string;
+    uploadTimeoutMs: number;
+    durationMs: number;
+    ok: boolean;
+    error?: string;
+  };
   objectId?: string;
   url?: string;
 };
@@ -32,8 +41,19 @@ export type AgentRun = {
   question: string;
   answer: string;
   usedMemoryIds: string[];
+  retrievalCandidates: RetrievalCandidate[];
   traceArtifact: WalrusArtifact;
   createdAt: string;
+};
+
+export type RetrievalCandidate = {
+  memoryId: string;
+  title: string;
+  status: MemoryStatus;
+  score: number;
+  selected: boolean;
+  matchedTokens: string[];
+  reasons: string[];
 };
 
 export type AuditLog = {

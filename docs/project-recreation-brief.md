@@ -17,10 +17,13 @@ raw memory -> summary artifact -> agent run trace -> audit log -> improved answe
 - 长期 memory artifact
 - Walrus HTTP 上传路径
 - 本地 demo fallback
+- Walrus 上传诊断，包括 endpoint、timeout、storage mode、fallback 原因
+- artifact 写入相关操作的 loading 状态和防重复点击
 - agent run trace
 - memory citation
-- deadline 冲突检测
+- deadline、requirement version、owner/source 冲突检测
 - 一键冲突解决
+- retrieval score、matched tokens、citation reasons
 - audit artifact
 - memory health score
 - artifact timeline
@@ -51,7 +54,10 @@ Tailwind v4 通过 Vite plugin 和 `src/styles.css` 加载。
 ├── vite.config.ts
 ├── index.html
 ├── docs/
-│   └── project-recreation-brief.md
+│   ├── architecture.md
+│   ├── demo-walkthrough.md
+│   ├── project-recreation-brief.md
+│   └── submission-checklist.md
 └── src/
     ├── main.tsx
     ├── styles.css
@@ -72,8 +78,8 @@ Tailwind v4 通过 Vite plugin 和 `src/styles.css` 加载。
 - `src/storage.ts`: 基于 `localStorage` 的浏览器端状态持久化。
 - `src/demoData.ts`: 初始 demo memories，包含 `June 20` 和 `June 15` deadline 冲突。
 - `src/walrusAdapter.ts`: Walrus HTTP 上传适配器。上传失败或超时后生成 `walrus-demo-*` 本地 artifact。
-- `src/agent.ts`: 简单关键词检索、memory 排序、回答生成、trace artifact 生成。
-- `src/conflicts.ts`: 当前主要检测 deadline date conflict。
+- `src/agent.ts`: 可解释关键词检索、memory 排序、回答生成、trace artifact 生成。
+- `src/conflicts.ts`: 检测 deadline、requirement version、owner/source conflict。
 - `src/inspector.ts`: Memory Health、Artifact Timeline、Artifact Graph、Evidence Bundle 工具函数。
 
 ## 环境变量
@@ -83,7 +89,7 @@ Tailwind v4 通过 Vite plugin 和 `src/styles.css` 加载。
 ```bash
 VITE_WALRUS_PUBLISHER_URL=https://publisher.walrus-testnet.walrus.space
 VITE_WALRUS_AGGREGATOR_URL=https://aggregator.walrus-testnet.walrus.space
-VITE_WALRUS_UPLOAD_TIMEOUT_MS=1500
+VITE_WALRUS_UPLOAD_TIMEOUT_MS=10000
 ```
 
 如需覆盖，创建 `.env.local`：
@@ -91,10 +97,22 @@ VITE_WALRUS_UPLOAD_TIMEOUT_MS=1500
 ```bash
 VITE_WALRUS_PUBLISHER_URL=<your-publisher-url>
 VITE_WALRUS_AGGREGATOR_URL=<your-aggregator-url>
-VITE_WALRUS_UPLOAD_TIMEOUT_MS=3000
+VITE_WALRUS_UPLOAD_TIMEOUT_MS=10000
 ```
 
 `.env.local` 会被 `.gitignore` 忽略，不应提交密钥或私有端点。
+如需本地覆盖配置，可以先复制 `.env.example` 到 `.env.local`。
+
+## Walrus 上传验证记录
+
+默认 testnet endpoint 已在 2026-06-15 验证：
+
+- Publisher CORS preflight 接受来自 localhost origin 的浏览器 `PUT` 请求。
+- `PUT /v1/blobs` 成功返回真实 blob ID。
+- Aggregator `GET /v1/blobs/:blobId` 能读取上传的 JSON artifact。
+- 实测上传耗时约 7.2 秒，因此默认 upload timeout 调整为 10000ms。
+
+当前判断：默认 testnet 路径暂不需要 backend proxy。只有当 judging endpoint 需要私有凭证、CORS 行为不稳定，或多次超过 browser-direct timeout 时，再增加 backend proxy。
 
 ## 本地运行
 
@@ -109,6 +127,7 @@ bun run dev
 
 ```bash
 bun run build
+bun run test
 bun outdated
 ```
 
@@ -116,6 +135,7 @@ bun outdated
 
 - `bun install` 成功。
 - `bun run build` 成功。
+- `bun run test` 成功。
 - `bun outdated` 未列出过期依赖。
 
 ## 重新创建 Git 仓库
@@ -187,16 +207,18 @@ origin: git@github.com:wenfeizou/walrus-memory-inspector.git
 ## Demo Walkthrough
 
 1. 打开应用，点击 `Reset Demo`。
-2. 查看 `Memory Health`，它会反映当前 unresolved conflict。
-3. 查看 `Conflict Radar`，它会检测 `June 20` vs `June 15`。
-4. 点击 `Run Agent With Memory`。
-5. 点击 `Resolve by latest memory`。
-6. 再次运行 agent。
-7. 查看 answer 是否引用 June 15。
-8. 查看 `Audit Log`。
-9. 查看 `Artifact Timeline`。
-10. 查看 `Artifact Graph`。
-11. 点击 `Export Evidence Bundle` 导出 JSON。
+2. 查看 `Walrus Diagnostics`，确认 artifact 使用真实 Walrus 还是 local demo fallback。
+3. 查看 `Memory Health`，它会反映当前 unresolved conflict。
+4. 查看 `Conflict Radar`，它会检测 deadline、requirement version、owner/source conflict。
+5. 点击 `Run Agent With Memory`。
+6. 查看 `Trace Viewer` 中的 retrieval score、matched tokens、citation reasons。
+7. 点击 `Resolve by latest memory`。
+8. 再次运行 agent。
+9. 查看 answer 是否引用 June 15。
+10. 查看 `Audit Log`。
+11. 查看 `Artifact Timeline`。
+12. 查看 `Artifact Graph`。
+13. 点击 `Export Evidence Bundle` 导出 JSON。
 
 ## 已完成能力
 
@@ -205,6 +227,8 @@ origin: git@github.com:wenfeizou/walrus-memory-inspector.git
 - Local persistence
 - Walrus HTTP artifact adapter
 - Local demo artifact fallback
+- Walrus Diagnostics
+- Upload loading states and duplicate-click guards
 - Agent Q&A
 - Agent trace artifact
 - Conflict Radar
@@ -214,21 +238,22 @@ origin: git@github.com:wenfeizou/walrus-memory-inspector.git
 - Artifact Timeline
 - Artifact Graph edge list
 - Evidence Bundle export
-- README 和项目重建说明
+- README、architecture diagram、demo walkthrough、submission checklist 和项目重建说明
 
 ## 当前限制和风险
 
 - 真实 Walrus 上传路径还需要在目标网络和 judging 环境验证。
 - 浏览器直连 publisher 可能遇到 CORS、延迟或可用性问题。
+- Walrus Diagnostics 能记录 fallback 原因，但不会自动解决浏览器上传稳定性问题。
 - metadata 只存在 `localStorage`，没有服务端索引。
-- retrieval 是关键词打分，不是 embedding search。
-- conflict detector 当前偏 demo，只覆盖 deadline date conflict。
+- retrieval 是可解释关键词打分，不是 embedding search。
+- conflict detector 覆盖少量透明规则，不是任意矛盾检测。
 - Artifact Graph 目前是 edge list，不是交互式图。
-- 还没有自动化测试脚本，当前主要依赖 `bun run build` 验证。
+- 自动化测试已覆盖核心 conflict、inspector、upload diagnostics、evidence bundle 和 agent retrieval 逻辑，但还没有浏览器端交互测试。
 
 ## 推荐下一步
 
-优先确认真实 Walrus upload：
+优先用 `Walrus Diagnostics` 确认真实 Walrus upload：
 
 ```text
 frontend -> Walrus publisher -> blob ID -> aggregator URL

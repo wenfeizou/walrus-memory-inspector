@@ -9,11 +9,14 @@ memory into persistent artifacts that can be inspected, diagnosed, fixed, audite
 
 - Persistent memory artifacts
 - Walrus HTTP upload with local demo fallback
+- Walrus upload diagnostics with endpoint, timeout, storage mode, and fallback reason
+- Upload loading states and duplicate-click guards for artifact-producing actions
 - Agent run traces
 - Cited memories for generated answers
-- Conflict detection across contradictory memories
+- Conflict detection across deadline, requirement version, and ownership memories
 - One-click conflict resolution with audit artifacts
 - Memory health scoring
+- Retrieval scoring with matched tokens and citation reasons
 - Artifact timeline from raw memory to summary, trace, and audit log
 - Artifact graph edges across memory, summary, trace, and audit artifacts
 - Evidence bundle JSON export
@@ -56,10 +59,17 @@ bun run dev
 
 Open the local URL printed by Vite.
 
+For local Walrus overrides:
+
+```bash
+cp .env.example .env.local
+```
+
 ## Build And Verify
 
 ```bash
 bun run build
+bun run test
 bun outdated
 ```
 
@@ -72,7 +82,7 @@ The adapter uses public testnet endpoints by default:
 ```bash
 VITE_WALRUS_PUBLISHER_URL=https://publisher.walrus-testnet.walrus.space
 VITE_WALRUS_AGGREGATOR_URL=https://aggregator.walrus-testnet.walrus.space
-VITE_WALRUS_UPLOAD_TIMEOUT_MS=1500
+VITE_WALRUS_UPLOAD_TIMEOUT_MS=10000
 ```
 
 Create a `.env.local` file to override them:
@@ -80,19 +90,43 @@ Create a `.env.local` file to override them:
 ```bash
 VITE_WALRUS_PUBLISHER_URL=<your-publisher-url>
 VITE_WALRUS_AGGREGATOR_URL=<your-aggregator-url>
-VITE_WALRUS_UPLOAD_TIMEOUT_MS=3000
+VITE_WALRUS_UPLOAD_TIMEOUT_MS=10000
 ```
+
+Copy `.env.example` to `.env.local` when you need local overrides.
+
+## Walrus Verification
+
+The default testnet endpoints were verified on 2026-06-15:
+
+- Publisher CORS preflight accepted browser `PUT` requests from a localhost origin.
+- `PUT /v1/blobs` returned a real blob ID.
+- Aggregator `GET /v1/blobs/:blobId` returned the uploaded JSON artifact.
+- The observed upload took about 7.2 seconds, so the default upload timeout is 10000ms.
+
+Current decision: a backend proxy is not required for the default testnet path. Add one only if the judging endpoint needs private credentials, has unstable CORS behavior, or repeatedly exceeds the browser-direct timeout.
 
 ## Demo Script
 
-1. Run the agent with the default question: `What is the current hackathon deadline?`
-2. Show `Memory Health`: the score reflects the unresolved conflict.
-3. Show `Conflict Radar`: it detects the June 20 vs June 15 deadline conflict.
-4. Click `Resolve by latest memory` to mark the stale deadline memory outdated.
-5. Run the agent again.
-6. Observe that the answer now cites the updated June 15 memory.
-7. Open `Artifact Timeline`, `Artifact Graph`, and `Audit Log` to show the raw memory, summary, trace, and audit artifacts.
-8. Click `Export Evidence Bundle` to download a portable JSON package for judging or cross-agent handoff.
+See [docs/demo-walkthrough.md](docs/demo-walkthrough.md) for the full presenter walkthrough.
+
+1. Click `Reset Demo` to create a fresh artifact chain.
+2. Show `Walrus Diagnostics` and confirm whether artifacts are real Walrus blobs or local demo fallback.
+3. Show `Memory Health`: the score reflects unresolved memory conflicts.
+4. Show `Conflict Radar`: it detects deadline, requirement version, and owner/source conflicts.
+5. Run the default question: `What is the current hackathon deadline?`
+6. Open `Trace Viewer` and show retrieval scores, matched tokens, and citation reasons.
+7. Click `Resolve by latest memory` to mark stale deadline memory outdated.
+8. Run the agent again and show the answer citing the updated June 15 memory.
+9. Open `Audit Log`, `Artifact Timeline`, and `Artifact Graph`.
+10. Click `Export Evidence Bundle` to download a portable JSON package for judging or cross-agent handoff.
+
+## Submission Docs
+
+- [Architecture](docs/architecture.md)
+- [Demo walkthrough](docs/demo-walkthrough.md)
+- [Submission checklist](docs/submission-checklist.md)
+- [Project recreation brief](docs/project-recreation-brief.md)
 
 ## Architecture
 
@@ -105,11 +139,14 @@ Memory Browser
   -> Agent Q&A
   -> Agent run trace
   -> Memory Inspector
+  -> Walrus Diagnostics
   -> Artifact Timeline
   -> Artifact Graph
   -> Evidence Bundle
   -> Audit log
 ```
+
+See [docs/architecture.md](docs/architecture.md) for Mermaid diagrams.
 
 ## Data Flow
 
@@ -122,6 +159,7 @@ seed memory / create memory
   -> store agent trace artifact
   -> resolve stale memory
   -> store audit artifact
+  -> summarize upload diagnostics
   -> export evidence bundle
 ```
 
@@ -140,16 +178,18 @@ seed memory / create memory
 
 - Real Walrus upload still needs to be verified in the target network and judging environment.
 - Browser-to-publisher upload can be affected by CORS, latency, or endpoint availability.
+- Walrus Diagnostics records fallback reasons, but it does not make browser-to-publisher upload more reliable by itself.
 - Metadata persistence is browser-local through `localStorage`.
-- Retrieval uses simple keyword scoring instead of embedding search.
-- Conflict detection currently focuses on deadline date conflicts.
+- Retrieval uses explainable keyword scoring instead of embedding search.
+- Conflict detection covers a small set of transparent rules, not arbitrary contradiction detection.
 - Artifact Graph is an edge list rather than an interactive graph canvas.
-- Verification currently relies on `bun run build`; no dedicated test suite is included.
+- Automated tests cover the core conflict, inspector, upload diagnostics, evidence bundle, and agent retrieval logic.
 
 ## Next Steps
 
 1. Confirm the preferred Walrus publisher endpoint for the judging environment.
-2. Add a server-side metadata index if browser-only storage is not enough.
-3. Add embedding search for richer retrieval.
-4. Add MemWal integration if using its delegated key flow.
-5. Add an interactive artifact graph canvas.
+2. Use Walrus Diagnostics to decide whether browser-direct upload is stable enough or a backend proxy is needed.
+3. Add a server-side metadata index if browser-only storage is not enough.
+4. Add embedding search for richer retrieval.
+5. Add MemWal integration if using its delegated key flow.
+6. Add an interactive artifact graph canvas.

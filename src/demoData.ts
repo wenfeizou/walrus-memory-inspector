@@ -52,10 +52,18 @@ export async function seedState(): Promise<DemoState> {
     }),
     await createMemory({
       title: "Walrus track requirement",
-      body: "Walrus track projects should demonstrate persistent agent memory, portable artifacts, cross-session retrieval, and reusable data rather than simple file upload.",
-      summary: "Walrus rewards persistent AI memory and artifact-driven workflows.",
+      body: "Walrus track requirement version is v1. Projects should demonstrate persistent agent memory, portable artifacts, cross-session retrieval, and reusable data rather than simple file upload.",
+      summary: "Requirement v1 rewards persistent AI memory and artifact-driven workflows.",
       tags: ["walrus", "requirements", "memory"],
       status: "active",
+      importance: 4
+    }),
+    await createMemory({
+      title: "Updated Walrus requirement spec",
+      body: "Walrus track requirement version is v2. The latest spec emphasizes inspectable memory artifacts, trace export, and auditability.",
+      summary: "Requirement v2 emphasizes inspectable memory artifacts, trace export, and auditability.",
+      tags: ["walrus", "requirements", "latest"],
+      status: "important",
       importance: 4
     }),
     await createMemory({
@@ -65,6 +73,22 @@ export async function seedState(): Promise<DemoState> {
       tags: ["campus", "memory", "walrus"],
       status: "active",
       importance: 3
+    }),
+    await createMemory({
+      title: "Demo owner note",
+      body: "The project owner is Alice for the initial prototype review.",
+      summary: "Owner is Alice for the initial prototype review.",
+      tags: ["ownership", "demo"],
+      status: "active",
+      importance: 2
+    }),
+    await createMemory({
+      title: "Demo owner update",
+      body: "The project owner is Bob for the final submission handoff.",
+      summary: "Owner is Bob for the final submission handoff.",
+      tags: ["ownership", "latest"],
+      status: "active",
+      importance: 2
     })
   ];
   return { memories, agentRuns: [], auditLogs: [] };

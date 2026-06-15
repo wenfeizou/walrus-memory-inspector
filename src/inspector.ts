@@ -19,6 +19,43 @@ export type MemoryHealth = {
   localArtifactCount: number;
 };
 
+export type UploadDiagnosticsSummary = {
+  mode: WalrusArtifact["diagnostics"]["mode"];
+  publisherUrl: string;
+  aggregatorUrl: string;
+  uploadTimeoutMs: number;
+  totalUploads: number;
+  walrusUploads: number;
+  fallbackUploads: number;
+  lastUpload?: {
+    blobId: string;
+    type: WalrusArtifact["type"];
+    storage: WalrusArtifact["storage"];
+    createdAt: string;
+    durationMs: number;
+    ok: boolean;
+    error?: string;
+    url?: string;
+  };
+  recentEvents: Array<{
+    blobId: string;
+    type: WalrusArtifact["type"];
+    storage: WalrusArtifact["storage"];
+    createdAt: string;
+    durationMs: number;
+    ok: boolean;
+    error?: string;
+    url?: string;
+  }>;
+  recentFailures: Array<{
+    blobId: string;
+    type: WalrusArtifact["type"];
+    createdAt: string;
+    durationMs: number;
+    error?: string;
+  }>;
+};
+
 export type ArtifactGraphNode = {
   id: string;
   label: string;
@@ -95,6 +132,55 @@ export function calculateMemoryHealth(state: DemoState, conflicts: MemoryConflic
   };
 }
 
+export function summarizeUploadDiagnostics(state: DemoState): UploadDiagnosticsSummary | null {
+  const artifacts = collectArtifacts(state).sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+  const latest = artifacts[0];
+  if (!latest) return null;
+  const diagnostics = latest.diagnostics;
+
+  return {
+    mode: diagnostics.mode,
+    publisherUrl: diagnostics.publisherUrl,
+    aggregatorUrl: diagnostics.aggregatorUrl,
+    uploadTimeoutMs: diagnostics.uploadTimeoutMs,
+    totalUploads: artifacts.length,
+    walrusUploads: artifacts.filter((artifact) => artifact.storage === "walrus").length,
+    fallbackUploads: artifacts.filter((artifact) => artifact.storage === "local-demo").length,
+    lastUpload: {
+      blobId: latest.blobId,
+      type: latest.type,
+      storage: latest.storage,
+      createdAt: latest.createdAt,
+      durationMs: diagnostics.durationMs,
+      ok: diagnostics.ok,
+      error: diagnostics.error,
+      url: latest.url
+    },
+    recentEvents: artifacts.slice(0, 8).map((artifact) => ({
+      blobId: artifact.blobId,
+      type: artifact.type,
+      storage: artifact.storage,
+      createdAt: artifact.createdAt,
+      durationMs: artifact.diagnostics.durationMs,
+      ok: artifact.diagnostics.ok,
+      error: artifact.diagnostics.error,
+      url: artifact.url
+    })),
+    recentFailures: artifacts
+      .filter((artifact) => !artifact.diagnostics.ok)
+      .slice(0, 5)
+      .map((artifact) => ({
+        blobId: artifact.blobId,
+        type: artifact.type,
+        createdAt: artifact.createdAt,
+        durationMs: artifact.diagnostics.durationMs,
+        error: artifact.diagnostics.error
+      }))
+  };
+}
+
 export function buildArtifactGraph(state: DemoState): { nodes: ArtifactGraphNode[]; edges: ArtifactGraphEdge[] } {
   const nodes = new Map<string, ArtifactGraphNode>();
   const edges: ArtifactGraphEdge[] = [];
@@ -154,12 +240,14 @@ export function buildEvidenceBundle(input: {
   conflicts: MemoryConflict[];
   timeline: TimelineItem[];
   health: MemoryHealth;
+  uploadDiagnostics: UploadDiagnosticsSummary | null;
 }) {
   return {
     exportedAt: new Date().toISOString(),
     project: "Walrus Memory Inspector",
     purpose: "Portable evidence bundle for agent memory debugging.",
     health: input.health,
+    uploadDiagnostics: input.uploadDiagnostics,
     conflicts: input.conflicts,
     memories: input.state.memories,
     agentRuns: input.state.agentRuns,

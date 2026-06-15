@@ -1,5 +1,10 @@
-import type { AgentRun, MemoryRecord } from "./types";
+import type { AgentRun, MemoryRecord, RetrievalCandidate } from "./types";
 import { storeArtifact } from "./walrusAdapter";
+
+type ArtifactStore = typeof storeArtifact;
+type ScoredMemory = RetrievalCandidate & {
+  memory: MemoryRecord;
+};
 
 const STOP_WORDS = new Set([
   "the",
@@ -41,6 +46,30 @@ function scoreMemory(question: string, memory: MemoryRecord): number {
   return tokenScore + memory.importance + statusScore + importantScore;
 }
 
+function explainMemoryScore(question: string, memory: MemoryRecord): ScoredMemory {
+  const questionTokens = tokenize(question);
+  const text = `${memory.title} ${memory.body} ${memory.summary} ${memory.tags.join(" ")}`.toLowerCase();
+  const matchedTokens = questionTokens.filter((token) => text.includes(token));
+  const reasons = [
+    matchedTokens.length ? `Matched query tokens: ${matchedTokens.join(", ")}` : "No query token match",
+    `Importance weight: +${memory.importance}`
+  ];
+
+  if (memory.status === "important") reasons.push("Important memory bonus: +2");
+  if (memory.status === "outdated" || memory.status === "archived") reasons.push(`Status penalty for ${memory.status}: -8`);
+
+  return {
+    memory,
+    memoryId: memory.id,
+    title: memory.title,
+    status: memory.status,
+    score: scoreMemory(question, memory),
+    selected: false,
+    matchedTokens,
+    reasons
+  };
+}
+
 function buildAnswer(question: string, used: MemoryRecord[]): string {
   const lower = question.toLowerCase();
   const active = used.filter((memory) => memory.status !== "outdated" && memory.status !== "archived");
@@ -67,32 +96,45 @@ function buildAnswer(question: string, used: MemoryRecord[]): string {
   return `Based on the strongest active memories: ${active.map((memory) => memory.summary).join(" ")}`;
 }
 
-export async function runAgent(question: string, memories: MemoryRecord[]): Promise<AgentRun> {
-  const ranked = memories
-    .map((memory) => ({ memory, score: scoreMemory(question, memory) }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3)
-    .filter((item) => item.score > 0);
-
-  const used = ranked.map((item) => item.memory);
-  const answer = buildAnswer(question, used);
+export async function runAgent(question: string, memories: MemoryRecord[], artifactStore: ArtifactStore = storeArtifact): Promise<AgentRun> {
+  const ranked = memories.map((memory) => explainMemoryScore(question, memory)).sort((a, b) => b.score - a.score);
+  const selectedIds = new Set(
+    ranked
+      .filter((item) => item.score > 0 && item.memory.status !== "outdated" && item.memory.status !== "archived")
+      .slice(0, 3)
+      .map((item) => item.memory.id)
+  );
+  const retrievalCandidates = ranked.map((item) => ({
+    memoryId: item.memoryId,
+    title: item.title,
+    status: item.status,
+    score: item.score,
+    selected: selectedIds.has(item.memory.id),
+    matchedTokens: item.matchedTokens,
+    reasons: item.reasons
+  }));
+  const selected = ranked.filter((item) => selectedIds.has(item.memory.id));
+  const usedMemories = selected.map((item) => item.memory);
+  const answer = buildAnswer(question, usedMemories);
   const trace = {
     question,
     answer,
-    usedMemoryIds: used.map((memory) => memory.id),
-    usedArtifacts: used.map((memory) => ({
+    retrievalCandidates,
+    usedMemoryIds: usedMemories.map((memory) => memory.id),
+    usedArtifacts: usedMemories.map((memory) => ({
       memoryId: memory.id,
       rawBlobId: memory.rawArtifact.blobId,
       summaryBlobId: memory.summaryArtifact.blobId,
       status: memory.status
     }))
   };
-  const traceArtifact = await storeArtifact("agent_trace", JSON.stringify(trace, null, 2));
+  const traceArtifact = await artifactStore("agent_trace", JSON.stringify(trace, null, 2));
   return {
     id: `run-${traceArtifact.blobId.slice(-8)}`,
     question,
     answer,
-    usedMemoryIds: used.map((memory) => memory.id),
+    usedMemoryIds: usedMemories.map((memory) => memory.id),
+    retrievalCandidates,
     traceArtifact,
     createdAt: new Date().toISOString()
   };
