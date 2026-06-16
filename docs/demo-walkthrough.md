@@ -12,6 +12,12 @@ bun run dev
 
 Open the Vite local URL.
 
+The sticky quick nav can be used during the demo to jump between:
+
+```text
+Diagnostics -> Health -> Conflicts -> Agent -> Trace -> Memories -> Audit -> Timeline -> Graph -> Bundle
+```
+
 Optional verification before the demo:
 
 ```bash
@@ -285,18 +291,17 @@ Use this shorter flow for a 3 to 5 minute demo:
 
 ```text
 Reset Demo
--> Walrus Diagnostics
--> Memory Health
--> Conflict Radar
--> Run Agent
--> Trace Viewer
+-> Diagnostics
+-> Health
+-> Conflicts
+-> Agent
+-> Trace
 -> Resolve by latest memory
 -> Run Agent again
--> Audit Log
--> Artifact Timeline
--> Artifact Graph
--> Export Evidence Bundle
--> Import Evidence Bundle
+-> Audit
+-> Timeline
+-> Graph
+-> Bundle export/import
 ```
 
 ## If Walrus Upload Falls Back

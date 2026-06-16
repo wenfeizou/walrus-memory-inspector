@@ -34,6 +34,12 @@ Say:
 Reset Demo creates a fresh memory state and stores raw memory and summary artifacts.
 ```
 
+Say:
+
+```text
+The top quick nav lets us jump directly to Diagnostics, Health, Conflicts, Agent, Trace, Memories, Audit, Timeline, Graph, and Bundle during the demo.
+```
+
 ### 0:30-1:00 - Walrus Storage Visibility
 
 Show `Walrus Diagnostics`.

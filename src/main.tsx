@@ -56,6 +56,20 @@ const statusButtonClass =
   "inline-flex min-h-10 min-w-40 flex-1 basis-40 items-center justify-center gap-2 rounded-md border border-emerald-100 bg-white px-3 text-sm font-bold text-emerald-950 hover:border-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500";
 const emptyClass = "rounded-lg border border-emerald-100 bg-emerald-50/70 p-4 text-sm text-slate-600";
 const listClass = "grid max-h-[420px] gap-2 overflow-auto pr-1";
+const anchorClass = "scroll-mt-36 sm:scroll-mt-32";
+
+const quickNavItems = [
+  { label: "Diagnostics", href: "#diagnostics" },
+  { label: "Health", href: "#health" },
+  { label: "Conflicts", href: "#conflicts" },
+  { label: "Agent", href: "#agent" },
+  { label: "Trace", href: "#trace" },
+  { label: "Memories", href: "#memories" },
+  { label: "Audit", href: "#audit" },
+  { label: "Timeline", href: "#timeline" },
+  { label: "Graph", href: "#graph" },
+  { label: "Bundle", href: "#bundle" }
+];
 
 type BusyAction = "reset" | "agent" | "create-memory" | "status-update" | "resolve-conflict" | null;
 
@@ -292,6 +306,20 @@ function App() {
         </button>
       </header>
 
+      <nav className="sticky top-0 z-20 -mx-4 mt-4 min-h-14 border-y border-emerald-100 bg-[#edf2ed]/95 px-4 py-2 backdrop-blur sm:-mx-7 sm:px-7">
+        <div className="mx-auto flex max-w-[1440px] gap-2 overflow-x-auto">
+          {quickNavItems.map((item) => (
+            <a
+              className="whitespace-nowrap rounded-md border border-emerald-100 bg-white px-3 py-2 text-xs font-bold text-emerald-950 hover:border-emerald-700 hover:bg-emerald-50"
+              href={item.href}
+              key={item.href}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
       <section className="my-5 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
         <Metric icon={<Database />} label="Memory Artifacts" value={state.memories.length} />
         <Metric icon={<Bot />} label="Agent Runs" value={state.agentRuns.length} />
@@ -310,7 +338,7 @@ function App() {
       ) : null}
 
       <section className="mb-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,1fr)]">
-        <div className={panelClass}>
+        <div className={`${panelClass} ${anchorClass}`} id="health">
           <div className={panelHeaderClass}>
             <CheckCircle2 size={18} />
             <h2 className="text-base font-bold">Memory Health</h2>
@@ -331,7 +359,7 @@ function App() {
           </div>
         </div>
 
-        <div className={panelClass}>
+        <div className={`${panelClass} ${anchorClass}`} id="diagnostics">
           <div className={panelHeaderClass}>
             <Database size={18} />
             <h2 className="text-base font-bold">Walrus Diagnostics</h2>
@@ -416,7 +444,7 @@ function App() {
           )}
         </div>
 
-        <div className={panelClass}>
+        <div className={`${panelClass} ${anchorClass}`} id="bundle">
           <div className={panelHeaderClass}>
             <Download size={18} />
             <h2 className="text-base font-bold">Evidence Bundle</h2>
@@ -459,7 +487,7 @@ function App() {
       </section>
 
       <section className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className={panelClass}>
+        <div className={`${panelClass} ${anchorClass}`} id="agent">
           <div className={panelHeaderClass}>
             <Bot size={18} />
             <h2 className="text-base font-bold">Agent Run</h2>
@@ -491,7 +519,7 @@ function App() {
           )}
         </div>
 
-        <div className={panelClass}>
+        <div className={`${panelClass} ${anchorClass}`} id="trace">
           <div className={panelHeaderClass}>
             <GitBranch size={18} />
             <h2 className="text-base font-bold">Trace Viewer</h2>
@@ -564,7 +592,7 @@ function App() {
       </section>
 
       <section className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className={panelClass}>
+        <div className={`${panelClass} ${anchorClass}`} id="conflicts">
           <div className={panelHeaderClass}>
             <ShieldAlert size={18} />
             <h2 className="text-base font-bold">Conflict Radar</h2>
@@ -618,7 +646,7 @@ function App() {
           )}
         </div>
 
-        <div className={panelClass}>
+        <div className={`${panelClass} ${anchorClass}`} id="timeline">
           <div className={panelHeaderClass}>
             <GitBranch size={18} />
             <h2 className="text-base font-bold">Artifact Timeline</h2>
@@ -640,7 +668,7 @@ function App() {
       </section>
 
       <section className="mb-5">
-        <div className={panelClass}>
+        <div className={`${panelClass} ${anchorClass}`} id="graph">
           <div className={panelHeaderClass}>
             <GitBranch size={18} />
             <h2 className="text-base font-bold">Artifact Graph</h2>
@@ -672,7 +700,7 @@ function App() {
       </section>
 
       <section className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className={panelClass}>
+        <div className={`${panelClass} ${anchorClass}`} id="memories">
           <div className={panelHeaderClass}>
             <FileSearch size={18} />
             <h2 className="text-base font-bold">Memory Browser</h2>
@@ -703,7 +731,7 @@ function App() {
           </div>
         </div>
 
-        <div className={panelClass}>
+        <div className={`${panelClass} ${anchorClass}`} id="memory-inspector">
           <div className={panelHeaderClass}>
             <Database size={18} />
             <h2 className="text-base font-bold">Memory Inspector</h2>
@@ -761,7 +789,7 @@ function App() {
       </section>
 
       <section className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className={panelClass}>
+        <div className={`${panelClass} ${anchorClass}`} id="create-memory">
           <div className={panelHeaderClass}>
             <Database size={18} />
             <h2 className="text-base font-bold">Create Memory Artifact</h2>
@@ -794,7 +822,7 @@ function App() {
           </button>
         </div>
 
-        <div className={panelClass}>
+        <div className={`${panelClass} ${anchorClass}`} id="audit">
           <div className={panelHeaderClass}>
             <History size={18} />
             <h2 className="text-base font-bold">Audit Log</h2>
