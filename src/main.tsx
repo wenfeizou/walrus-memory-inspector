@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Archive,
@@ -26,6 +26,7 @@ import {
   buildEvidenceBundle,
   calculateMemoryHealth,
   downloadJson,
+  parseEvidenceBundle,
   summarizeUploadDiagnostics
 } from "./inspector";
 import { clearState, loadState, saveState } from "./storage";
@@ -86,6 +87,8 @@ function App() {
     tags: ""
   });
   const [busyAction, setBusyAction] = useState<BusyAction>(null);
+  const [bundleImportStatus, setBundleImportStatus] = useState<string | null>(null);
+  const bundleInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const existing = loadState();
@@ -237,6 +240,23 @@ function App() {
       setSelectedMemoryId(null);
     } finally {
       setBusyAction(null);
+    }
+  }
+
+  async function importEvidenceBundle(file: File | undefined) {
+    if (!file) return;
+    try {
+      const parsed = JSON.parse(await file.text()) as unknown;
+      const imported = parseEvidenceBundle(parsed);
+      setState(imported);
+      setSelectedMemoryId(null);
+      setBundleImportStatus(
+        `Imported ${imported.memories.length} memories, ${imported.agentRuns.length} runs, and ${imported.auditLogs.length} audit logs.`
+      );
+    } catch (error) {
+      setBundleImportStatus(error instanceof Error ? error.message : "Could not import evidence bundle.");
+    } finally {
+      if (bundleInputRef.current) bundleInputRef.current.value = "";
     }
   }
 
@@ -402,21 +422,39 @@ function App() {
             <h2 className="text-base font-bold">Evidence Bundle</h2>
           </div>
           <p className="mb-4 text-sm leading-6 text-slate-600">
-            Export a portable JSON package containing memories, conflicts, run traces, audit logs, timeline entries, and
-            health metrics for judging or cross-agent handoff.
+            Export or import a portable JSON package containing memories, conflicts, run traces, audit logs, timeline
+            entries, health metrics, and upload diagnostics for judging or cross-agent handoff.
           </p>
-          <button
-            className={primaryButtonClass}
-            onClick={() =>
-              downloadJson(
-                `walrus-memory-inspector-evidence-${new Date().toISOString().slice(0, 10)}.json`,
-                buildEvidenceBundle({ state, conflicts, timeline, health, uploadDiagnostics })
-              )
-            }
-          >
-            <Download size={16} />
-            Export Evidence Bundle
-          </button>
+          <div className="grid gap-2">
+            <button
+              className={primaryButtonClass}
+              onClick={() =>
+                downloadJson(
+                  `walrus-memory-inspector-evidence-${new Date().toISOString().slice(0, 10)}.json`,
+                  buildEvidenceBundle({ state, conflicts, timeline, health, uploadDiagnostics })
+                )
+              }
+            >
+              <Download size={16} />
+              Export Evidence Bundle
+            </button>
+            <input
+              accept="application/json,.json"
+              className="hidden"
+              ref={bundleInputRef}
+              type="file"
+              onChange={(event) => void importEvidenceBundle(event.target.files?.[0])}
+            />
+            <button className={quietButtonClass} disabled={isBusy} onClick={() => bundleInputRef.current?.click()}>
+              <FileSearch size={16} />
+              Import Evidence Bundle
+            </button>
+            {bundleImportStatus ? (
+              <div className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-3 text-sm text-emerald-950">
+                {bundleImportStatus}
+              </div>
+            ) : null}
+          </div>
         </div>
       </section>
 

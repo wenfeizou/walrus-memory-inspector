@@ -29,6 +29,7 @@ raw memory -> summary artifact -> agent run trace -> audit log -> improved answe
 - artifact timeline
 - artifact graph edge list
 - evidence bundle JSON 导出
+- evidence bundle JSON 导入，用于跨会话恢复
 
 ## 技术栈
 
@@ -56,6 +57,7 @@ Tailwind v4 通过 Vite plugin 和 `src/styles.css` 加载。
 ├── docs/
 │   ├── architecture.md
 │   ├── demo-walkthrough.md
+│   ├── judging-notes.md
 │   ├── project-recreation-brief.md
 │   ├── submission-checklist.md
 │   └── walrus-track-fit.md
@@ -239,6 +241,7 @@ origin: git@github.com:wenfeizou/walrus-memory-inspector.git
 - Artifact Timeline
 - Artifact Graph edge list
 - Evidence Bundle export
+- Evidence Bundle import
 - README、architecture diagram、demo walkthrough、Walrus track fit analysis、submission checklist 和项目重建说明
 
 ## 当前限制和风险

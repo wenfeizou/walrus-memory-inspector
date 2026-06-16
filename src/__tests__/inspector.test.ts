@@ -4,6 +4,7 @@ import {
   buildArtifactTimeline,
   buildEvidenceBundle,
   calculateMemoryHealth,
+  parseEvidenceBundle,
   summarizeUploadDiagnostics
 } from "../inspector";
 import { agentRun, auditLog, memory, state } from "./helpers";
@@ -72,5 +73,17 @@ describe("inspector utilities", () => {
     expect(uploadDiagnostics?.recentFailures).toHaveLength(1);
     expect(bundle.uploadDiagnostics?.lastUpload?.type).toBe("audit_log");
     expect(bundle.timeline).toHaveLength(4);
+
+    const importedState = parseEvidenceBundle(bundle);
+    expect(importedState.memories).toHaveLength(1);
+    expect(importedState.agentRuns).toHaveLength(1);
+    expect(importedState.auditLogs).toHaveLength(1);
+  });
+
+  test("rejects invalid evidence bundle input", () => {
+    expect(() => parseEvidenceBundle({ project: "Other", memories: [], agentRuns: [], auditLogs: [] })).toThrow(
+      /project/
+    );
+    expect(() => parseEvidenceBundle({ project: "Walrus Memory Inspector", memories: [] })).toThrow(/missing/);
   });
 });

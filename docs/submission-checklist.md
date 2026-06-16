@@ -33,6 +33,7 @@ For the full presenter script, use [demo-walkthrough.md](demo-walkthrough.md).
 - Show `Artifact Timeline`.
 - Show `Artifact Graph`.
 - Export the evidence bundle JSON.
+- Import the evidence bundle JSON and confirm the session is restored.
 
 ## Submission Assets
 
@@ -44,6 +45,7 @@ For the full presenter script, use [demo-walkthrough.md](demo-walkthrough.md).
 - `docs/submission-checklist.md` is present.
 - `docs/walrus-track-fit.md` is present.
 - Evidence bundle export has been tested.
+- Evidence bundle import has been tested.
 
 ## Known Limitations To Mention
 

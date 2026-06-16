@@ -263,7 +263,7 @@ What to say:
 The graph is currently an edge list. It still exposes the provenance relationships between memory, summaries, traces, and audits.
 ```
 
-### 13. Export Evidence Bundle
+### 13. Export And Import Evidence Bundle
 
 Click `Export Evidence Bundle`.
 
@@ -271,11 +271,12 @@ What to show:
 
 - A JSON file is downloaded.
 - It includes memories, conflicts, agent runs, audit logs, timeline entries, health metrics, and upload diagnostics.
+- `Import Evidence Bundle` can restore the exported debugging session.
 
 What to say:
 
 ```text
-The evidence bundle makes the memory debugging session portable for judging, review, or handoff to another agent.
+The evidence bundle makes the memory debugging session portable for judging, review, or handoff to another agent. Import proves the session can be restored without a backend.
 ```
 
 ## Recommended Short Demo
@@ -295,6 +296,7 @@ Reset Demo
 -> Artifact Timeline
 -> Artifact Graph
 -> Export Evidence Bundle
+-> Import Evidence Bundle
 ```
 
 ## If Walrus Upload Falls Back

@@ -256,6 +256,24 @@ export function buildEvidenceBundle(input: {
   };
 }
 
+export function parseEvidenceBundle(input: unknown): DemoState {
+  if (!isRecord(input)) {
+    throw new Error("Evidence bundle must be a JSON object.");
+  }
+  if (input.project !== "Walrus Memory Inspector") {
+    throw new Error("Evidence bundle project does not match Walrus Memory Inspector.");
+  }
+  if (!Array.isArray(input.memories) || !Array.isArray(input.agentRuns) || !Array.isArray(input.auditLogs)) {
+    throw new Error("Evidence bundle is missing memories, agentRuns, or auditLogs.");
+  }
+
+  return {
+    memories: input.memories as DemoState["memories"],
+    agentRuns: input.agentRuns as DemoState["agentRuns"],
+    auditLogs: input.auditLogs as DemoState["auditLogs"]
+  };
+}
+
 export function downloadJson(filename: string, data: unknown) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -273,4 +291,8 @@ function collectArtifacts(state: DemoState): WalrusArtifact[] {
   const runArtifacts = state.agentRuns.map((run) => run.traceArtifact);
   const auditArtifacts = state.auditLogs.map((log: AuditLog) => log.artifact);
   return [...memoryArtifacts, ...runArtifacts, ...auditArtifacts];
+}
+
+function isRecord(input: unknown): input is Record<string, unknown> {
+  return typeof input === "object" && input !== null;
 }

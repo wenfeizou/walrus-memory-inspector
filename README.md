@@ -20,6 +20,7 @@ memory into persistent artifacts that can be inspected, diagnosed, fixed, audite
 - Artifact timeline from raw memory to summary, trace, and audit log
 - Artifact graph edges across memory, summary, trace, and audit artifacts
 - Evidence bundle JSON export
+- Evidence bundle JSON import for cross-session handoff
 - Memory status management: active, important, outdated, archived
 
 ## Why This Fits Walrus
@@ -38,6 +39,18 @@ Walrus is the conceptual storage layer for:
 - audit logs
 
 The app stores artifacts through the Walrus HTTP publisher when available. If the publisher is unavailable, blocked by the browser, or not configured for the environment, it falls back to local demo artifacts with `walrus-demo-*` blob IDs.
+
+## Current Agent Mode
+
+The current MVP uses a deterministic local agent for reproducible memory debugging. It does not call a live LLM API yet.
+
+The flow is:
+
+```text
+question -> retrieve scored memories -> select active candidates -> generate rule-based answer -> store trace artifact
+```
+
+A live LLM can be added later behind the same retrieval and trace interface.
 
 ## Tech Stack
 
@@ -119,12 +132,14 @@ See [docs/demo-walkthrough.md](docs/demo-walkthrough.md) for the full presenter 
 7. Click `Resolve by latest memory` to mark stale deadline memory outdated.
 8. Run the agent again and show the answer citing the updated June 15 memory.
 9. Open `Audit Log`, `Artifact Timeline`, and `Artifact Graph`.
-10. Click `Export Evidence Bundle` to download a portable JSON package for judging or cross-agent handoff.
+10. Click `Export Evidence Bundle` to download a portable JSON package.
+11. Click `Import Evidence Bundle` to restore the exported memory debugging session.
 
 ## Submission Docs
 
 - [Architecture](docs/architecture.md)
 - [Demo walkthrough](docs/demo-walkthrough.md)
+- [Judging notes](docs/judging-notes.md)
 - [Walrus track fit analysis](docs/walrus-track-fit.md)
 - [Submission checklist](docs/submission-checklist.md)
 - [Project recreation brief](docs/project-recreation-brief.md)
@@ -143,7 +158,7 @@ Memory Browser
   -> Walrus Diagnostics
   -> Artifact Timeline
   -> Artifact Graph
-  -> Evidence Bundle
+  -> Evidence Bundle export/import
   -> Audit log
 ```
 
@@ -162,6 +177,7 @@ seed memory / create memory
   -> store audit artifact
   -> summarize upload diagnostics
   -> export evidence bundle
+  -> import evidence bundle for handoff/replay
 ```
 
 ## Project Structure
