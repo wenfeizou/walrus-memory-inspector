@@ -140,6 +140,7 @@ See [docs/demo-walkthrough.md](docs/demo-walkthrough.md) for the full presenter 
 - [Architecture](docs/architecture.md)
 - [Demo walkthrough](docs/demo-walkthrough.md)
 - [Judging notes](docs/judging-notes.md)
+- [Video script](docs/video-script.md)
 - [Walrus track fit analysis](docs/walrus-track-fit.md)
 - [Submission checklist](docs/submission-checklist.md)
 - [Project recreation brief](docs/project-recreation-brief.md)

@@ -43,6 +43,7 @@ For the full presenter script, use [demo-walkthrough.md](demo-walkthrough.md).
 - `docs/demo-walkthrough.md` is present.
 - `docs/project-recreation-brief.md` is present.
 - `docs/submission-checklist.md` is present.
+- `docs/video-script.md` is present.
 - `docs/walrus-track-fit.md` is present.
 - Evidence bundle export has been tested.
 - Evidence bundle import has been tested.

@@ -60,6 +60,7 @@ Tailwind v4 通过 Vite plugin 和 `src/styles.css` 加载。
 │   ├── judging-notes.md
 │   ├── project-recreation-brief.md
 │   ├── submission-checklist.md
+│   ├── video-script.md
 │   └── walrus-track-fit.md
 └── src/
     ├── main.tsx
@@ -242,7 +243,7 @@ origin: git@github.com:wenfeizou/walrus-memory-inspector.git
 - Artifact Graph edge list
 - Evidence Bundle export
 - Evidence Bundle import
-- README、architecture diagram、demo walkthrough、Walrus track fit analysis、submission checklist 和项目重建说明
+- README、architecture diagram、demo walkthrough、video script、Walrus track fit analysis、submission checklist 和项目重建说明
 
 ## 当前限制和风险
 
