@@ -343,12 +343,12 @@ function App() {
             <CheckCircle2 size={18} />
             <h2 className="text-base font-bold">Memory Health</h2>
           </div>
-          <div className="grid gap-4 sm:grid-cols-[160px_1fr]">
+          <div className="grid gap-4 2xl:grid-cols-[150px_1fr]">
             <div className="grid place-items-center rounded-lg border border-emerald-100 bg-emerald-50 p-5">
               <strong className="text-5xl text-emerald-950">{health.score}</strong>
               <span className="text-xs font-bold uppercase text-slate-500">Health score</span>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(112px,1fr))] gap-3">
               <HealthItem label="Active" value={health.activeCount} />
               <HealthItem label="Outdated" value={health.outdatedCount} />
               <HealthItem label="Archived" value={health.archivedCount} />
@@ -862,9 +862,13 @@ function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; 
 
 function HealthItem({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-emerald-100 bg-white p-3">
-      <span className="block text-xs font-bold uppercase text-slate-500">{label}</span>
-      <strong className="mt-1 block text-2xl text-emerald-950">{value}</strong>
+    <div className="grid min-h-20 min-w-0 content-between rounded-lg border border-emerald-100 bg-white p-3">
+      <span className="block truncate text-xs font-bold uppercase text-slate-500" title={label}>
+        {label}
+      </span>
+      <strong className="mt-1 block min-w-0 truncate text-2xl text-emerald-950" title={String(value)}>
+        {value}
+      </strong>
     </div>
   );
 }
