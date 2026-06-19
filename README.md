@@ -5,6 +5,36 @@ Walrus Memory Inspector is a Walrus-track MVP for making AI agent memory visible
 It is designed for the Walrus AI memory track: instead of treating Walrus as simple file storage, the app turns agent
 memory into persistent artifacts that can be inspected, diagnosed, fixed, audited, and exported.
 
+## Final Submission Snapshot
+
+- Track: Walrus / AI memory and persistent artifacts
+- Competition demo status: final judge-demo MVP
+- Core proof: memory is stored as inspectable artifacts, agent answers cite memory traces, stale memory can be corrected with an audit artifact, and the full evidence bundle can be exported and imported
+- Demo video and deck are prepared separately under the competition materials workspace
+- Verification commands: `bun run test` and `bun run build`
+
+## Reviewer Quick Path
+
+For a fast review, run the app and follow this path:
+
+```text
+Reset Demo
+  -> Walrus Diagnostics
+  -> Memory Health
+  -> Conflict Radar
+  -> Run Agent With Memory
+  -> Trace Viewer
+  -> Resolve by latest memory
+  -> Run Agent With Memory again
+  -> Audit Log
+  -> Timeline / Graph
+  -> Export Evidence Bundle
+  -> Import Evidence Bundle
+```
+
+The most important judging surfaces are `Walrus Diagnostics`, `Trace Viewer`,
+`Conflict Radar`, `Audit Log`, and `Evidence Bundle`.
+
 ## Features
 
 - Persistent memory artifacts
