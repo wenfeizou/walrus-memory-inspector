@@ -5,7 +5,7 @@ const publisherUrl =
   import.meta.env.VITE_WALRUS_PUBLISHER_URL?.replace(/\/$/, "") || "https://publisher.walrus-testnet.walrus.space";
 const aggregatorUrl =
   import.meta.env.VITE_WALRUS_AGGREGATOR_URL?.replace(/\/$/, "") || "https://aggregator.walrus-testnet.walrus.space";
-const uploadTimeoutMs = Number(import.meta.env.VITE_WALRUS_UPLOAD_TIMEOUT_MS ?? 10000);
+const uploadTimeoutMs = Number(import.meta.env.VITE_WALRUS_UPLOAD_TIMEOUT_MS ?? 3000);
 const uploadMode = "browser-direct";
 
 type WalrusStoreResponse = {

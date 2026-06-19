@@ -13,8 +13,10 @@ export async function createMemory(input: {
   status?: MemoryRecord["status"];
   importance?: number;
 }): Promise<MemoryRecord> {
-  const rawArtifact = await storeArtifact("raw_memory", input.body);
-  const summaryArtifact = await storeArtifact("summary", input.summary);
+  const [rawArtifact, summaryArtifact] = await Promise.all([
+    storeArtifact("raw_memory", input.body),
+    storeArtifact("summary", input.summary)
+  ]);
   const id = `mem-${rawArtifact.blobId.slice(-8)}`;
   const createdAt = now();
   return {
@@ -33,8 +35,8 @@ export async function createMemory(input: {
 }
 
 export async function seedState(): Promise<DemoState> {
-  const memories = [
-    await createMemory({
+  const memories = await Promise.all([
+    createMemory({
       title: "Original deadline",
       body: "The Sui hackathon project submission deadline was initially June 20. This note came from an early planning conversation.",
       summary: "Older note says the hackathon deadline is June 20.",
@@ -42,7 +44,7 @@ export async function seedState(): Promise<DemoState> {
       status: "important",
       importance: 5
     }),
-    await createMemory({
+    createMemory({
       title: "Updated deadline",
       body: "The hackathon organizers updated the final submission deadline to June 15. This replaces earlier schedule notes.",
       summary: "Latest note says the final submission deadline is June 15.",
@@ -50,7 +52,7 @@ export async function seedState(): Promise<DemoState> {
       status: "active",
       importance: 3
     }),
-    await createMemory({
+    createMemory({
       title: "Walrus track requirement",
       body: "Walrus track requirement version is v1. Projects should demonstrate persistent agent memory, portable artifacts, cross-session retrieval, and reusable data rather than simple file upload.",
       summary: "Requirement v1 rewards persistent AI memory and artifact-driven workflows.",
@@ -58,7 +60,7 @@ export async function seedState(): Promise<DemoState> {
       status: "active",
       importance: 4
     }),
-    await createMemory({
+    createMemory({
       title: "Updated Walrus requirement spec",
       body: "Walrus track requirement version is v2. The latest spec emphasizes inspectable memory artifacts, trace export, and auditability.",
       summary: "Requirement v2 emphasizes inspectable memory artifacts, trace export, and auditability.",
@@ -66,7 +68,7 @@ export async function seedState(): Promise<DemoState> {
       status: "important",
       importance: 4
     }),
-    await createMemory({
+    createMemory({
       title: "Campus Memory Network concept",
       body: "Campus Memory Network turns alumni check-ins into Walrus-backed memory artifacts with media, location, AI summaries, privacy tiers, and multi-agent retrieval.",
       summary: "Campus Memory Network is an alumni memory graph, not a simple check-in app.",
@@ -74,7 +76,7 @@ export async function seedState(): Promise<DemoState> {
       status: "active",
       importance: 3
     }),
-    await createMemory({
+    createMemory({
       title: "Demo owner note",
       body: "The project owner is Alice for the initial prototype review.",
       summary: "Owner is Alice for the initial prototype review.",
@@ -82,7 +84,7 @@ export async function seedState(): Promise<DemoState> {
       status: "active",
       importance: 2
     }),
-    await createMemory({
+    createMemory({
       title: "Demo owner update",
       body: "The project owner is Bob for the final submission handoff.",
       summary: "Owner is Bob for the final submission handoff.",
@@ -90,6 +92,6 @@ export async function seedState(): Promise<DemoState> {
       status: "active",
       importance: 2
     })
-  ];
+  ]);
   return { memories, agentRuns: [], auditLogs: [] };
 }
