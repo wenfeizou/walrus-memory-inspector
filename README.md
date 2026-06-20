@@ -10,7 +10,10 @@ memory into persistent artifacts that can be inspected, diagnosed, fixed, audite
 - Track: Walrus / AI memory and persistent artifacts
 - Competition demo status: final judge-demo MVP
 - Core proof: memory is stored as inspectable artifacts, agent answers cite memory traces, stale memory can be corrected with an audit artifact, and the full evidence bundle can be exported and imported
-- Demo video and deck are prepared separately under the competition materials workspace
+- Website: <https://wenfeizou.github.io/walrus-memory-inspector/>
+- Demo video: <https://youtu.be/yxJ2A6fZAGE>
+- Demo deck: [docs/submission/walrus-memory-inspector-demo-deck.pdf](docs/submission/walrus-memory-inspector-demo-deck.pdf)
+- DeepSurge: <https://www.deepsurge.xyz/projects/448df3ba-85c9-4098-95ec-acac277d54a4>
 - Verification commands: `bun run test` and `bun run build`
 
 ## Reviewer Quick Path
